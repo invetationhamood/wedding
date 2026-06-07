@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>دعوة محمد & ماسة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#2a1b16;
+      --card:#33231d;
+      --gold:#d8a94c;
+      --rose:#a56568;
+      --cream:#fff7ee;
+      --muted:#caa1a2;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{
+      min-height:100vh;
+      font-family:'Amiri',serif;
+      background:var(--bg);
+      color:var(--cream);
+      overflow-x:hidden;
+    }
+
+    body.lock{overflow:hidden}
+
+    /* video first */
+    .splash-screen{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:#000;
+      transition:opacity 1.1s ease, visibility 1.1s ease;
+    }
+    .splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
+    .splash-video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .skip-video{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      border:1px solid rgba(255,255,255,.5);
+      background:rgba(0,0,0,.25);
+      color:#fff;
+      border-radius:999px;
+      padding:10px 18px;
+      cursor:pointer;
+      backdrop-filter:blur(8px);
+      font-family:inherit;
+    }
+
+    /* full page snap scroll */
+    .main-content{
+      opacity:0;
+      transition:opacity .9s ease;
+      scroll-snap-type:y mandatory;
+      height:100vh;
+      overflow-y:auto;
+      overscroll-behavior-y:contain;
+      -webkit-overflow-scrolling:touch;
+    }
+    .main-content.show{opacity:1}
+    .panel{
+      min-height:100svh;
+      scroll-snap-align:start;
+      position:relative;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:clamp(22px,5vw,70px);
+      isolation:isolate;
+    }
+
+    /* first page like screenshot, background image wee */
+    .hero{
+      background:#222;
+      text-align:center;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url('wee.jpeg') center center / cover no-repeat;
+      z-index:-2;
+      transform:scale(1.02);
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to bottom,rgba(0,0,0,.12),rgba(0,0,0,.42)), rgba(255,255,255,.04);
+      z-index:-1;
+    }
+    .hero-inner{
+      width:min(92vw,760px);
+      margin:auto;
+      color:white;
+      animation:fadeUp 1.1s ease both;
+    }
+    .eyebrow{
+      font-family:'Playfair Display',serif;
+      letter-spacing:.42em;
+      font-size:clamp(.75rem,2vw,1.15rem);
+      margin-bottom:clamp(42px,8vh,74px);
+      opacity:.92;
+      direction:ltr;
+    }
+    .names{
+      font-size:clamp(3rem,10vw,6rem);
+      line-height:1.1;
+      font-weight:700;
+      text-shadow:0 8px 35px rgba(0,0,0,.38);
+      margin-bottom:clamp(28px,6vh,58px);
+    }
+    .date,.venue{
+      font-family:'Playfair Display','Amiri',serif;
+      font-size:clamp(1rem,3vw,1.35rem);
+      letter-spacing:.02em;
+    }
+    .venue{font-family:'Amiri',serif;font-weight:700;margin-top:8px;font-size:clamp(.95rem,2.6vw,1.1rem)}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:12px 38px;
+      margin-top:clamp(32px,6vh,48px);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.7);
+      color:white;
+      background:rgba(255,255,255,.09);
+      text-decoration:none;
+      font-family:'Playfair Display',serif;
+      letter-spacing:.12em;
+      backdrop-filter:blur(10px);
+      cursor:pointer;
+    }
+    .down{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:30px;opacity:.75;animation:bounce 1.5s infinite}
+
+    /* reveal page */
+    .reveal{
+      background:radial-gradient(circle at center,rgba(255,255,255,.04),transparent 35%), var(--bg);
+      text-align:center;
+    }
+    .small-icon{
+      width:70px;height:70px;margin:0 auto 26px;border-radius:50%;
+      display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--muted);
+      font-size:27px;
+    }
+    .hint{color:var(--rose);font-size:clamp(.9rem,2.4vw,1rem);margin-bottom:36px}
+    .script-title{
+      font-family:'Great Vibes','Playfair Display',cursive;
+      font-size:clamp(4rem,12vw,6.8rem);
+      color:var(--cream);
+      margin-bottom:18px;
+      line-height:.8;
+    }
+    .subtitle{
+      direction:ltr;
+      letter-spacing:.38em;
+      color:var(--rose);
+      font-family:'Playfair Display',serif;
+      font-size:clamp(.75rem,2vw,1rem);
+      margin-bottom:clamp(38px,8vh,65px);
+    }
+    .scratch-row{
+      display:flex;
+      gap:clamp(18px,5vw,44px);
+      justify-content:center;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .coin-wrap{display:grid;gap:13px;justify-items:center;color:var(--rose);letter-spacing:.24em;font-family:'Playfair Display',serif;font-size:.75rem;direction:ltr}
+    .coin{
+      width:clamp(104px,22vw,138px);
+      aspect-ratio:1;
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      background:radial-gradient(circle at 32% 25%,#fff1bf 0 9%,#d9aa47 18%,#b98324 70%,#7b551d 100%);
+      box-shadow:0 10px 30px rgba(0,0,0,.4), inset 0 0 22px rgba(255,255,255,.22);
+      color:#4c2d10;
+      font:700 clamp(1.6rem,7vw,2.35rem) 'Playfair Display',serif;
+      transition:.4s ease;
+    }
+    .coin.revealed{background:var(--card);color:var(--cream);border:1px solid rgba(216,169,76,.65);transform:rotateY(180deg)}
+    .coin span{display:block;transform:rotateY(0)}
+    .coin.revealed span{transform:rotateY(180deg)}
+
+    /* details page */
+    .details{
+      background:var(--bg);
+      align-items:flex-start;
+      padding-top:clamp(60px,10vh,120px);
+    }
+    .details-wrap{width:min(1100px,100%);margin:auto}
+    .section-title{
+      font-family:'Great Vibes','Playfair Display',cursive;
+      font-size:clamp(3.6rem,9vw,6rem);
+      font-weight:400;
+      text-align:center;
+      line-height:.9;
+      margin-bottom:20px;
+    }
+    .section-subtitle{text-align:center;color:var(--rose);font-size:clamp(.95rem,2.4vw,1.15rem);margin-bottom:clamp(38px,7vh,70px)}
+    .card{
+      width:min(840px,100%);
+      margin:auto;
+      background:rgba(60,41,34,.75);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:7px;
+      padding:clamp(28px,6vw,64px);
+      box-shadow:0 25px 80px rgba(0,0,0,.18);
+    }
+    .card h3{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2rem,5vw,2.8rem);
+      margin-bottom:28px;
+      text-align:left;
+      direction:ltr;
+    }
+    .info-line{
+      display:grid;
+      grid-template-columns:42px 1fr;
+      gap:14px;
+      align-items:start;
+      margin:18px 0;
+      text-align:right;
+    }
+    .info-line .icon{
+      width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+      background:rgba(216,169,76,.12);color:var(--gold);font-size:20px;
+    }
+    .info-line strong{display:block;color:var(--cream);font-size:1.05rem}
+    .info-line span{display:block;color:var(--muted);font-size:1rem;margin-top:3px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:32px}
+    .gold-btn,.outline-btn{
+      min-height:52px;border-radius:999px;border:1px solid var(--gold);font-family:'Amiri',serif;
+      font-size:1.05rem;text-decoration:none;display:grid;place-items:center;cursor:pointer;
+    }
+    .gold-btn{background:var(--gold);color:#2b1b12}
+    .outline-btn{background:transparent;color:var(--gold)}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-8px)}}
+
+    @media (max-width:700px){
+      .main-content{scroll-snap-type:y proximity}
+      .hero::before{background-position:center center;background-size:cover}
+      .eyebrow{letter-spacing:.28em;margin-bottom:56px}
+      .names{font-size:clamp(3rem,16vw,4.5rem)}
+      .scratch-row{gap:16px}
+      .coin{width:min(28vw,112px)}
+      .actions{grid-template-columns:1fr}
+      .card h3{text-align:center}
+      .skip-video{font-size:.9rem;padding:8px 14px}
+    }
+
+    @media (orientation:landscape) and (max-height:520px){
+      .panel{padding:18px}
+      .eyebrow{margin-bottom:18px}
+      .names{font-size:3rem;margin-bottom:18px}
+      .btn{margin-top:22px;min-height:42px}
+      .coin{width:84px}
+      .script-title{font-size:3.8rem}
+      .subtitle{margin-bottom:24px}
+      .card{padding:24px}
+      .details{padding-top:24px}
+    }
+  </style>
+</head>
+<body class="lock">
+  <div class="splash-screen" id="splashScreen">
+    <video class="splash-video" id="splashVideo" autoplay muted playsinline preload="auto">
+      <source src="we.mp4" type="video/mp4" />
+    </video>
+    <button class="skip-video" id="skipVideo" type="button">تخطي الفيديو</button>
+  </div>
+
+  <main class="main-content" id="mainContent">
+    <section class="panel hero" id="home">
+      <div class="hero-inner">
+        <div class="eyebrow">WE'RE GETTING MARRIED</div>
+        <h1 class="names">محمد &amp; ماسة</h1>
+        <div class="date">Friday, June 12, 2026</div>
+        <div class="venue">قاعة تونس</div>
+        <a class="btn" href="#reveal">SAVE THE DATE</a>
+      </div>
+      <div class="down">⌄</div>
+    </section>
+
+    <section class="panel reveal" id="reveal">
+      <div>
+        <div class="small-icon">♡</div>
+        <p class="hint">Scratch all three circles to continue</p>
+        <h2 class="script-title">Reveal</h2>
+        <p class="subtitle">SCRATCH TO DISCOVER THE DATE</p>
+        <div class="scratch-row">
+          <div class="coin-wrap"><button class="coin" data-value="06"><span></span></button><div>MONTH</div></div>
+          <div class="coin-wrap"><button class="coin" data-value="12"><span></span></button><div>DAY</div></div>
+          <div class="coin-wrap"><button class="coin" data-value="2026"><span></span></button><div>YEAR</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel details" id="details">
+      <div class="details-wrap">
+        <h2 class="section-title">Details of the Day</h2>
+        <p class="section-subtitle">Everything you need to know about our special day</p>
+        <div class="card">
+          <h3>Ceremony</h3>
+          <div class="info-line">
+            <div class="icon">⌖</div>
+            <div><strong>قاعة تونس</strong><span>حفلة الزفاف في نفس القاعة الخامسة</span></div>
+          </div>
+          <div class="info-line">
+            <div class="icon">▣</div>
+            <div><strong>Friday, June 12, 2026</strong></div>
+          </div>
+          <div class="info-line">
+            <div class="icon">◷</div>
+            <div><strong>6:00 PM – 8:00 PM</strong></div>
+          </div>
+          <div class="actions">
+            <a class="gold-btn" href="https://maps.google.com/?q=قاعة تونس" target="_blank" rel="noopener">⌖ How to get there</a>
+            <a class="outline-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wedding%20Mohammad%20%26%20Masa&dates=20260612T150000Z/20260612T170000Z&location=قاعة%20تونس" target="_blank" rel="noopener">↗ Add to Calendar</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const splash = document.getElementById('splashScreen');
+    const video = document.getElementById('splashVideo');
+    const main = document.getElementById('mainContent');
+    const skip = document.getElementById('skipVideo');
+
+    function openInvitation(){
+      splash.classList.add('hide');
+      document.body.classList.remove('lock');
+      main.classList.add('show');
+      setTimeout(()=> splash.remove(), 1200);
+    }
+
+    window.addEventListener('load', async () => {
+      try { await video.play(); } catch(e) { skip.style.display = 'block'; }
+    });
+    video.addEventListener('ended', openInvitation);
+    skip.addEventListener('click', openInvitation);
+    setTimeout(() => { if(!splash.classList.contains('hide') && video.paused) openInvitation(); }, 4500);
+
+    document.querySelectorAll('.coin').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.add('revealed');
+        btn.querySelector('span').textContent = btn.dataset.value;
+        const allDone = [...document.querySelectorAll('.coin')].every(c => c.classList.contains('revealed'));
+        if(allDone) setTimeout(()=> document.getElementById('details').scrollIntoView({behavior:'smooth'}), 700);
+      });
+    });
+  </script>
+</body>
+</html>
